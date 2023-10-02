@@ -84,20 +84,23 @@ def num_fault(W,b,dataset):
 def DATA():
     data11=[]
     data22=[]
-    mean1 = [1,0]
+    mean1 = [-5,0]
     cov1 = [[1,0],[0,1]]
     data1 = np.random.multivariate_normal(mean1,cov1,200)
     for data in data1: 
         data11.append(np.append(data,[1]))
     #print(data1)
-    mean2 = [0,1]
+    mean2 = [0,5]
     cov2 = [[1,0],[0,1]]
     data2 = np.random.multivariate_normal(mean2,cov2,200)
     for data in data2: 
         data22.append(np.append(data,[-1]))
 
+    
     data3=np.concatenate((data11, data22))
+    
     print("生成数据集:",data3)
+    print("类型：",type(data3))
     return data3
     
     
@@ -131,7 +134,7 @@ plt.scatter(x2,y2,marker='x')
 
 starttime = time.time()
 #分类
-W,b=Pocket()
+W,b=PLA()
 endtime = time.time()
 dtime = endtime - starttime
 
