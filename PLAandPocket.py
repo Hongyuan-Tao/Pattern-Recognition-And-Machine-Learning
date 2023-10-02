@@ -76,27 +76,28 @@ def num_fault(W,b,dataset):
         X=np.array(dataset[i][:-1])
         Y=np.dot(W,X)+b
         if(np.sign(Y)!=np.sign(dataset[i][-1])):
-            count+=count
+            count=count+1
+
             
     return count
 
 def DATA():
     data11=[]
     data22=[]
-    mean1 = [-5,0]
+    mean1 = [1,0]
     cov1 = [[1,0],[0,1]]
     data1 = np.random.multivariate_normal(mean1,cov1,200)
     for data in data1: 
         data11.append(np.append(data,[1]))
     #print(data1)
-    mean2 = [0,5]
+    mean2 = [0,1]
     cov2 = [[1,0],[0,1]]
     data2 = np.random.multivariate_normal(mean2,cov2,200)
     for data in data2: 
         data22.append(np.append(data,[-1]))
 
     data3=np.concatenate((data11, data22))
-    print(data3)
+    print("生成数据集:",data3)
     return data3
     
     
@@ -130,14 +131,14 @@ plt.scatter(x2,y2,marker='x')
 
 starttime = time.time()
 #分类
-W,b=PLA()
+W,b=Pocket()
 endtime = time.time()
 dtime = endtime - starttime
 
 #输出耗时
 print(dtime,"s")
 
-plt.plot([-8,2],[(8*W[0]-b)/W[1],((-2)*W[0]-b)/W[1]],'g')#画直线
+plt.plot([-8,4],[(8*W[0]-b)/W[1],((-4)*W[0]-b)/W[1]],'g')#画直线
 #计算并输出分类准确率
 accurate1=(len(dataset)-num_fault(W,b,dataset))/len(dataset)
 accurate2=(len(dataset_test)-num_fault(W,b,dataset_test))/len(dataset_test)
