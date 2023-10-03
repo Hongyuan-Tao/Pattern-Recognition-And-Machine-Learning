@@ -1,4 +1,3 @@
-#使用PLA算法与Pocket算法进行分类
 import numpy as np
 import matplotlib.pyplot as plt
 import random
