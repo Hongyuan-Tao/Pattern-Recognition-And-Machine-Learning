@@ -13,6 +13,8 @@ def GInverse():
     return W,train_loss,test_loss
     
 def GD():
+    train_loss=[]
+    test_loss=[]
     W = np.random.normal(size=x_train.shape[1])
     for i in range(num_epoch):
         # 初始化批量生成器
@@ -21,8 +23,8 @@ def GD():
         #print(grad)
         W = W - learning_rate * grad
     
-    train_loss = np.sqrt(np.square(x_train @ W - y_train).mean())
-    test_loss = np.sqrt(np.square(x_test @ W - y_test).mean())
+        train_loss.append(np.sqrt(np.square(x_train @ W - y_train).mean()))
+        test_loss.append((np.square(x_test @ W - y_test).mean()))
     
     #print(W)
     return W,train_loss,test_loss
@@ -77,6 +79,8 @@ def SGD():
 def Adagrad():
     W = np.random.normal(size=x_train.shape[1])
     summ=0
+    train_loss=[]
+    test_loss=[]
     for i in range(num_epoch):
         # 初始化批量生成器
         grad = 2*(x_train.T @ x_train @ W - (x_train.T @ y_train).flatten()) / len(x_train)#要时刻关注二维数组和一维数组
@@ -85,9 +89,9 @@ def Adagrad():
         #print(grad)
         learning_rate=0.05/math.sqrt(summ/(i+1))
         W = W - learning_rate * grad
-    
-    train_loss = np.sqrt(np.square(x_train @ W - y_train).mean())
-    test_loss = np.sqrt(np.square(x_test @ W - y_test).mean())
+        
+        train_loss.append(np.sqrt(np.square(x_train @ W - y_train).mean()))
+        test_loss.append((np.square(x_test @ W - y_test).mean()))
     
     print(W)
     return W,train_loss,test_loss
@@ -95,6 +99,8 @@ def Adagrad():
 def RMSProp():
     W = np.random.normal(size=x_train.shape[1])
     summ=0
+    train_loss=[]
+    test_loss=[]
     for i in range(num_epoch):
         # 初始化批量生成器
         grad = 2*(x_train.T @ x_train @ W - (x_train.T @ y_train).flatten()) / len(x_train)#要时刻关注二维数组和一维数组
@@ -106,8 +112,8 @@ def RMSProp():
         W = W - learning_rate * grad
         summ=summ+grad.T@grad
     
-    train_loss = np.sqrt(np.square(x_train @ W - y_train).mean())
-    test_loss = np.sqrt(np.square(x_test @ W - y_test).mean())
+        train_loss.append(np.sqrt(np.square(x_train @ W - y_train).mean()))
+        test_loss.append((np.square(x_test @ W - y_test).mean()))
     
     print(W)
     return W,train_loss,test_loss
@@ -115,6 +121,8 @@ def RMSProp():
 def Momentum():
     W = np.random.normal(size=x_train.shape[1])
     m=np.zeros(x_train.shape[1])
+    train_loss=[]
+    test_loss=[]
     for i in range(num_epoch):
         # 初始化批量生成器
         grad = 2*(x_train.T @ x_train @ W - (x_train.T @ y_train).flatten()) / len(x_train)#要时刻关注二维数组和一维数组
@@ -122,9 +130,9 @@ def Momentum():
         #print(grad)
         m=lambdaa*m-learning_rate * grad
         W = W + m
-    
-    train_loss = np.sqrt(np.square(x_train @ W - y_train).mean())
-    test_loss = np.sqrt(np.square(x_test @ W - y_test).mean())
+
+        train_loss.append(np.sqrt(np.square(x_train @ W - y_train).mean()))
+        test_loss.append((np.square(x_test @ W - y_test).mean()))
     
     print(W)
     
@@ -134,6 +142,8 @@ def Adam():
     W = np.random.normal(size=x_train.shape[1])
     summ=0
     m=np.zeros(x_train.shape[1])
+    train_loss=[]
+    test_loss=[]
     for i in range(num_epoch):
         # 初始化批量生成器
         grad = 2*(x_train.T @ x_train @ W - (x_train.T @ y_train).flatten()) / len(x_train)#要时刻关注二维数组和一维数组
@@ -143,10 +153,10 @@ def Adam():
         m=lambdaa*m-learning_rate * grad
         W = W + m
         summ=summ+grad.T@grad
-    
-    train_loss = np.sqrt(np.square(x_train @ W - y_train).mean())
-    test_loss = np.sqrt(np.square(x_test @ W - y_test).mean())
-    
+
+        train_loss.append(np.sqrt(np.square(x_train @ W - y_train).mean()))
+        test_loss.append((np.square(x_test @ W - y_test).mean()))
+
     print(W)
     
     return W,train_loss,test_loss
@@ -163,13 +173,13 @@ def num_fault(W,x,y):
 def DATA():
     data11=[]
     data22=[]
-    mean1 = [1,0]
+    mean1 = [-5,0]
     cov1 = [[1,0],[0,1]]
     data1 = np.random.multivariate_normal(mean1,cov1,200)
     for data in data1: 
         data11.append(np.append(data,[1]))
     #print(data1)
-    mean2 = [0,1]
+    mean2 = [0,5]
     cov2 = [[1,0],[0,1]]
     data2 = np.random.multivariate_normal(mean2,cov2,200)
     for data in data2: 
@@ -180,7 +190,7 @@ def DATA():
     return data3
 
 #给定超参数
-num_epoch=150
+num_epoch=50
 learning_rate=0.01
 batch_size=32
 alpha=0.9
@@ -253,8 +263,8 @@ plt.show()
 #分类
 W,train_loss,test_loss=GD()
 print('W:',W)
-print("训练集损失函数:",train_loss)
-print("测试集损失函数:",test_loss)
+#print("训练集损失函数:",train_loss)
+#print("测试集损失函数:",test_loss)
 #print(W.shape)
 endtime = time.time()
 dtime = endtime - starttime
@@ -276,21 +286,14 @@ print("测试集分类准确率:",accurate2)
 plt.show()
 
 #绘制损失函数随epoch的变化曲线
-train_loss1=[]
-test_loss1=[]
-for num_epoch in range(1,150):
-    W,train_loss,test_loss=GD()
-    train_loss1.append(train_loss)
-    test_loss1.append(test_loss)
-
-x=np.linspace(10,150,149)
+x=np.linspace(1,num_epoch,num_epoch)
 
 
 plt.title("Epoch")
 plt.xlabel("epoch")    #设置x轴标注
 plt.ylabel("loss")
-plt.plot(x,train_loss1,color='blue',label='train loss')#画直线
-plt.plot(x,test_loss1,color='yellow',label='test loss')
+plt.plot(x,train_loss,color='blue',label='train loss')#画直线
+plt.plot(x,test_loss,color='yellow',label='test loss')
 plt.show()
 
     
