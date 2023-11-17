@@ -73,8 +73,10 @@ def predict_nn(net, test):  #@save
 num_epochs=100
 
 net = nn.Sequential(nn.Linear(4, 10),
-                    nn.ReLU(),
-                    nn.Linear(10, 3))
+                    nn.Sigmoid(),
+                    nn.Linear(10, 20),
+                    nn.Sigmoid(),
+                    nn.Linear(20, 3))
 
 net = net.to(device)
 
@@ -90,8 +92,8 @@ dtime = endtime - starttime
 #输出耗时
 print("耗时：",dtime,"s")
 
-print(f'第一层网络参数为： {net[0].state_dict()}'
-          f'第二层网络参数为： {net[2].state_dict()}')
+print(f'网络参数为： {net.state_dict()}'
+          )
 
 print(f'预测准确率为：{predict_nn(net, iris_test)}')
 

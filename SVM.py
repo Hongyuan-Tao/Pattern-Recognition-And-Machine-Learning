@@ -9,12 +9,12 @@ from tqdm import tqdm,trange
 
 def poly_kernel(d):
     def k(x,y):
-        return np.inner(x, y)
+        return np.inner(x, y)**d
     return k
 
 def gaussian(sigma):
     def k(x,y):
-        return np.exp(-np.inner(x-y,x-y)/(2*sigma))
+        return np.exp(-np.inner(x-y,x-y)/(2*sigma**2))
     return k
 
 def SMO(x,y,ker,C,max_iter):
@@ -70,14 +70,14 @@ def wx(x_new,ker,sup_x,sup_y,sup_alpha):
 def DATA():
     data11=[]
     data22=[]
-    mean1 = [-5,0]
+    mean1 = [3,0]
     cov1 = [[1,0],[0,1]]
     data1 = np.random.multivariate_normal(mean1,cov1,200)
     data1 = np.concatenate([data1, np.ones((data1.shape[0], 1))], axis=1)
     #for data in data1: 
         #data11.append(np.append(data,[1]))
     #print(data1)
-    mean2 = [0,5]
+    mean2 = [0,3]
     cov2 = [[1,0],[0,1]]
     data2 = np.random.multivariate_normal(mean2,cov2,200)
     data2 = np.concatenate([data2, -np.ones((data2.shape[0], 1))], axis=1)
@@ -109,9 +109,9 @@ plt.scatter(x_train[pos_index, 0], x_train[pos_index, 1],
 plt.scatter(x_train[neg_index, 0], x_train[neg_index, 1], 
     marker='x', color='blue', s=10)
 plt.xlabel('X1 axis')
-plt.ylabel('X2 axis')
+plt.ylabel('X2 axis')'''
 
-#利用对偶支撑向量机计算分类权重
+'''#利用对偶支撑向量机计算分类权重
 starttime = time.time()
 W,b,sup_idx=Dual_SVM(x_train,y_train)
 endtime = time.time()
@@ -121,45 +121,47 @@ print("耗时:",dtime,"s")
 
 #绘制分类面
 # 直线方程：W0 * x_1 + W1 * x_2 + W2 = 0
-plt.plot([-8,4],[(8*W[0]-b)/W[1],((-4)*W[0]-b)/W[1]],'g')#画直线
+plt.plot([-4,4],[(4*W[0]-b)/W[1],((-4)*W[0]-b)/W[1]],'g')#画直线
 
 #绘制支撑向量
-plt.scatter(x_train[sup_idx,0],x_train[sup_idx,1],marker='o',color='none',edgecolor='purple',s=150,label='support vectors')'''
+plt.scatter(x_train[sup_idx,0],x_train[sup_idx,1],marker='o',color='none',edgecolor='purple',s=150,label='support vectors')
+plt.show()'''
+
 
 #-----------------------------------------------------------------------#
 #利用核支撑向量机进行分类
-plt.figure(1)
-fig, axs = plt.subplots(2, 2, figsize=(10, 10))
-axs = axs.flatten()
+#plt.figure(1)
+fig, axs = plt.subplots(1, 1, figsize=(10, 10))
+#axs = axs.flatten()
 cmap = ListedColormap(['coral', 'royalblue'])
-kernels=[np.inner,gaussian(1)]
+kernels=[np.inner,gaussian(0.1)]
 
 
-for i in range(1):
-    alpha,sup_idx=Kernel_SVM(x_train,y_train,np.inner)
-    sup_x=x_train[sup_idx]
-    sup_y=y_train[sup_idx]
-    sup_alpha=alpha[sup_idx]
-    neg=[wx(xi,np.inner,sup_x,sup_y,sup_alpha) for xi in sup_x[sup_y==-1]]
-    pos=[wx(xi,np.inner,sup_x,sup_y,sup_alpha) for xi in sup_x[sup_y==1]]
-    b = -(np.max(neg) + np.min(pos))/2
-    # 构造网格并用 SVM 预测分类
-    G = np.linspace(-8, 8, 100)
-    G = np.meshgrid(G, G)
-    X = np.array([G[0].flatten(), G[1].flatten()]).T # 转换为每行一个向量的形式
-    Y = np.array([wx(xi,np.inner,sup_x,sup_y,sup_alpha) + b for xi in X])
-    print(Y)
-    Y[Y < 0] = -1
-    Y[Y >= 0] = 1
-    Y = Y.reshape(G[0].shape)
+
+alpha,sup_idx=Kernel_SVM(x_train,y_train,gaussian(0.1))
+sup_x=x_train[sup_idx]
+sup_y=y_train[sup_idx]
+sup_alpha=alpha[sup_idx]
+neg=[wx(xi,gaussian(0.1),sup_x,sup_y,sup_alpha) for xi in sup_x[sup_y==-1]]
+pos=[wx(xi,gaussian(0.1),sup_x,sup_y,sup_alpha) for xi in sup_x[sup_y==1]]
+b = -(np.max(neg) + np.min(pos))/2
+# 构造网格并用 SVM 预测分类
+G = np.linspace(-6, 6, 100)
+G = np.meshgrid(G, G)
+X = np.array([G[0].flatten(), G[1].flatten()]).T # 转换为每行一个向量的形式
+Y = np.array([wx(xi,gaussian(0.1),sup_x,sup_y,sup_alpha) + b for xi in X])
+print(Y)
+Y[Y < 0] = -1  
+Y[Y >= 0] = 1                                                                                                                     
+Y = Y.reshape(G[0].shape)
     
-    axs[i].contourf(G[0], G[1], Y, cmap=cmap, alpha=0.5)
+axs.contourf(G[0], G[1], Y, cmap=cmap, alpha=0.5)
     # 绘制原数据集的点
-    axs[i].scatter(x_train[y_train == -1, 0], x_train[y_train == -1, 1], color='red', label='y=-1')
-    axs[i].scatter(x_train[y_train == 1, 0], x_train[y_train == 1, 1], marker='x', color='blue', label='y=1')
-    axs[i].set_xlabel(r'$x_1$')
-    axs[i].set_ylabel(r'$x_2$')
-    axs[i].legend()
+axs.scatter(x_train[y_train == -1, 0], x_train[y_train == -1, 1], color='red', label='y=-1')
+axs.scatter(x_train[y_train == 1, 0], x_train[y_train == 1, 1], marker='x', color='blue', label='y=1')
+axs.set_xlabel(r'$x_1$')
+axs.set_ylabel(r'$x_2$')                                                                                                                                                                           
+axs.legend()
 
 plt.show()
 

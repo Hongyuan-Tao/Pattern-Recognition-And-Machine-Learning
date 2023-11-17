@@ -56,9 +56,9 @@ def train_epoch(net,train_iter,loss,updater):
         X=X.to(device)
         y=y.to(device)
         # 计算梯度并更新参数
-        y_hat = net(X.to(device))
+        y_hat = net.forward(X.to(device))
         #print(y_hat)
-        l = loss(y_hat, y.to(device))
+        l = loss(y_hat, y.to(device)).sum()#一定要写.sum()
         updater.zero_grad()
         l.mean().backward()
         updater.step()
@@ -74,6 +74,7 @@ def train_nn(net,train_iter,test_iter,loss, num_epochs, updater):  #@save
     acc_tests=[]
     for epoch in trange(num_epochs):
         LOSS,acc_train =train_epoch(net,train_iter, loss, updater)
+        print("acc_train:",acc_train)
         acc_test=predict_nn(net,test_iter)
         LOSSs.append(LOSS)
         acc_trains.append(acc_train)
@@ -94,7 +95,7 @@ def predict(net, test_iter, n=6):  #@save
         X[0:n].to(torch.device('cpu')).reshape((n, 28, 28)), 1, n, titles=preds[0:n])
     plt.show()
 
-num_epochs=5
+num_epochs=10
 
 net = nn.Sequential(
     nn.Conv2d(1, 6, kernel_size=5, padding=2), nn.Sigmoid(),
@@ -108,7 +109,7 @@ net = nn.Sequential(
 
 net = net.to(device)
 
-trainer = torch.optim.SGD(net.parameters(), lr=0.9)
+trainer = torch.optim.SGD(net.parameters(), lr=0.01)
 loss = nn.CrossEntropyLoss(reduction='none')
 
 # 定义数据预处理操作
@@ -128,19 +129,21 @@ endtime = time.time()
 dtime = endtime - starttime
 #输出耗时
 print("耗时：",dtime,"s")
+print(f'网络参数为： {net.state_dict()}'
+          )
 print(f'预测准确率为：{acc_tests[-1]}')
 
 x=np.linspace(1,num_epochs,num_epochs)
 
 plt.figure(num=1)
-plt.title("Epoch")
-plt.xlabel("epoch-loss")    #设置x轴标注
+plt.title("Epoch-loss")
+plt.xlabel("epoch")    #设置x轴标注
 plt.ylabel("loss")
 plt.plot(x,LOSSs,color='blue',label='train loss')#画直线
 
 plt.figure(num=2)
-plt.title("Epoch")
-plt.xlabel("epoch-accuracy")    #设置x轴标注
+plt.title("Epoch-accuracy")
+plt.xlabel("epoch")    #设置x轴标注
 plt.ylabel("accuracy")
 plt.plot(x,acc_trains,color='yellow',label='train loss')
 plt.plot(x,acc_tests,color='red',label='test loss')
